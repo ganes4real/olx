@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLX - Buy and Sell for free anywhere in India with local classified ads</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23002f34'/><text y='65' x='50' text-anchor='middle' font-size='45' font-weight='bold' fill='%23fff' font-family='sans-serif'>olx</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Top Main Navbar -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Logo -->
+      <a href="/" class="logo-link" id="logoBtn">
+        <svg class="olx-logo" viewBox="0 0 100 60" width="60" height="36" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="20" cy="30" rx="16" ry="22" fill="#002f34" />
+          <ellipse cx="20" cy="30" rx="7" ry="12" fill="#fff" />
+          <rect x="42" y="10" width="8" height="42" rx="4" fill="#002f34" />
+          <path d="M 64 16 L 86 44 M 86 16 L 64 44" stroke="#002f34" stroke-width="8" stroke-linecap="round" />
+        </svg>
+      </a>
+
+      <!-- Location Searchable Dropdown Combobox -->
+      <div class="location-combobox-wrapper" id="navLocationWrapper">
+        <div class="location-box">
+          <span class="icon">📍</span>
+          <input type="text" id="locationInput" class="location-input" placeholder="Search City, State..." autocomplete="off" value="All India">
+          <button id="clearLocationFilterBtn" class="loc-clear-btn hidden" title="Clear location">&times;</button>
+          <span class="loc-chevron">▾</span>
+        </div>
+        <div id="locationDropdown" class="custom-dropdown-menu hidden">
+          <div class="dropdown-header">POPULAR LOCATIONS IN INDIA</div>
+          <div id="locationSuggestionsList" class="suggestions-list">
+            <!-- Populated dynamically by app.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Find Cars, Mobile Phones, Flats and more..." autocomplete="off">
+        <button id="searchBtn" class="search-btn" title="Search">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- User Nav Actions -->
+      <div class="nav-actions">
+        <!-- Admin Panel Quick Link -->
+        <button id="navAdminBtn" class="nav-admin-btn" title="Open Admin Panel">
+          <span class="admin-shield">🛡️</span>
+          <span class="nav-btn-text">Admin Panel</span>
+        </button>
+
+        <!-- Chat / Inbox Button -->
+        <button id="navChatBtn" class="nav-chat-btn" title="Open Conversations">
+          <span class="chat-icon">💬</span>
+          <span class="nav-btn-text">Chats</span>
+          <span id="chatBadge" class="nav-badge hidden">0</span>
+        </button>
+
+        <!-- Auth Container -->
+        <div id="authContainer" class="auth-container">
+          <button id="loginBtn" class="login-btn">Login</button>
+        </div>
+
+        <!-- SELL Button -->
+        <button id="sellBtn" class="sell-btn">
+          <span class="sell-plus">+</span>
+          <span class="sell-text">SELL</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Categories Sub-Header -->
+  <nav class="categories-nav">
+    <div class="categories-container">
+      <button class="all-categories-btn" id="allCategoriesBtn">
+        <span>ALL CATEGORIES</span>
+        <span class="caret">▾</span>
+      </button>
+      <div class="quick-links" id="quickLinks">
+        <button class="cat-pill active" data-category="All">All</button>
+        <button class="cat-pill" data-category="Cars">Cars</button>
+        <button class="cat-pill" data-category="Motorcycles">Motorcycles</button>
+        <button class="cat-pill" data-category="Mobile Phones">Mobile Phones</button>
+        <button class="cat-pill" data-category="Houses & Apartments">Houses & Apartments</button>
+        <button class="cat-pill" data-category="Scooters">Scooters</button>
+        <button class="cat-pill" data-category="Commercial Vehicles">Commercial Vehicles</button>
+        <button class="cat-pill" data-category="Electronics & Appliances">Electronics</button>
+        <button class="cat-pill" data-category="Furniture">Furniture</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Categories Mega Dropdown Menu -->
+  <div id="categoriesDropdown" class="categories-dropdown hidden">
+    <div class="dropdown-grid">
+      <div class="dropdown-col">
+        <h4>Vehicles</h4>
+        <a href="#" data-category="Cars">🚗 Cars</a>
+        <a href="#" data-category="Motorcycles">🏍️ Motorcycles</a>
+        <a href="#" data-category="Scooters">🛵 Scooters</a>
+        <a href="#" data-category="Commercial Vehicles">🚚 Commercial Vehicles</a>
+      </div>
+      <div class="dropdown-col">
+        <h4>Properties</h4>
+        <a href="#" data-category="Houses & Apartments">🏠 Houses & Apartments</a>
+      </div>
+      <div class="dropdown-col">
+        <h4>Mobiles & Tech</h4>
+        <a href="#" data-category="Mobile Phones">📱 Mobile Phones</a>
+        <a href="#" data-category="Electronics & Appliances">💻 Electronics & Appliances</a>
+      </div>
+      <div class="dropdown-col">
+        <h4>Home & Lifestyle</h4>
+        <a href="#" data-category="Furniture">🛋️ Furniture</a>
+        <a href="#" data-category="Fashion">👗 Fashion</a>
+        <a href="#" data-category="Other">📦 Other Items</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Banner -->
+  <section class="hero-banner" id="heroBanner">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h2>India's Trusted Marketplace</h2>
+        <p>Buy & sell cars, phones, real estate & more safely. Images stored securely in-database with verified seller profiles and live chat.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="heroSellBtn" class="hero-sell-action">+ Start Selling Free</button>
+        <button id="heroAdminQuickBtn" class="hero-admin-action">🛡️ Admin Dashboard</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Marketplace Content -->
+  <main class="main-content">
+    <div class="content-header">
+      <div class="breadcrumb-and-title">
+        <h3 id="sectionTitle">Fresh recommendations</h3>
+        <span id="resultsCount" class="results-count">Showing listings</span>
+      </div>
+
+      <!-- Controls & Filters Bar -->
+      <div class="controls-bar">
+        <!-- Main Navigation View Tabs -->
+        <div class="tab-filters">
+          <button class="tab-btn active" id="tabAll">All Ads</button>
+          <button class="tab-btn" id="tabCategories">🗂️ Categories</button>
+          <button class="tab-btn" id="tabFavorites">❤️ Favorites (<span id="favCount">0</span>)</button>
+          <button class="tab-btn" id="tabMyAds">My Listings</button>
+          <button class="tab-btn admin-tab" id="tabAdmin">🛡️ Admin Panel</button>
+        </div>
+
+        <!-- Sort Select -->
+        <div class="sort-box" id="sortBox">
+          <label for="sortSelect">SORT BY:</label>
+          <select id="sortSelect">
+            <option value="newest">Date Published</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Filters & Search Tag Indicator -->
+    <div id="filterPillsContainer" class="filter-pills-container hidden">
+      <span class="filter-label">Filters applied:</span>
+      <span id="activeSearchTag" class="filter-tag hidden">
+        Search: "<span id="activeSearchVal"></span>"
+        <button id="clearSearchBtn">&times;</button>
+      </span>
+      <span id="activeCategoryTag" class="filter-tag hidden">
+        Category: <span id="activeCategoryVal"></span>
+        <button id="clearCategoryBtn">&times;</button>
+      </span>
+      <span id="activeLocationTag" class="filter-tag hidden">
+        Location: <span id="activeLocationVal"></span>
+        <button id="clearLocationBtn">&times;</button>
+      </span>
+      <button id="clearAllFiltersBtn" class="clear-all-link">Clear all</button>
+    </div>
+
+    <!-- VIEW 1: Listings Grid (Default) -->
+    <div id="itemsGridContainer">
+      <div id="itemsGrid" class="items-grid">
+        <!-- Dynamically populated -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state hidden">
+        <div class="empty-icon">🔍</div>
+        <h3>No listings found</h3>
+        <p>We couldn't find any ads matching your current criteria. Try different keywords or clear filters.</p>
+        <button id="resetFiltersBtn" class="secondary-btn">Reset All Filters</button>
+      </div>
+
+      <!-- Load More Button -->
+      <div class="load-more-container" id="loadMoreContainer">
+        <button id="loadMoreBtn" class="load-more-btn">Load more</button>
+      </div>
+    </div>
+
+    <!-- VIEW 2: Categories Tab Explorer View -->
+    <div id="categoriesTabContainer" class="categories-tab-view hidden">
+      <div class="categories-view-header">
+        <h3>Explore All Marketplace Categories</h3>
+        <p>Browse thousands of listings categorized for easy discovery</p>
+      </div>
+      <div id="categoryCardsGrid" class="category-cards-grid">
+        <!-- Populated dynamically by app.js -->
+      </div>
+    </div>
+
+    <!-- VIEW 3: Admin Panel Full View -->
+    <div id="adminPanelContainer" class="admin-panel-view hidden">
+      <div class="admin-header-banner">
+        <div class="admin-title-area">
+          <span class="admin-crown">🛡️</span>
+          <div>
+            <h2>Marketplace Administration Panel</h2>
+            <p>Control inventory, delete listings, review scam reports, and manage verified users</p>
+          </div>
+        </div>
+        <div class="admin-actions">
+          <button id="refreshAdminStatsBtn" class="admin-refresh-btn">🔄 Refresh Data</button>
+        </div>
+      </div>
+
+      <!-- Admin Metrics Counter Cards -->
+      <div class="admin-metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon blue">📦</div>
+          <div class="metric-info">
+            <span class="metric-label">Total Listings</span>
+            <h3 id="statTotalItems">0</h3>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon green">✅</div>
+          <div class="metric-info">
+            <span class="metric-label">Active Listed</span>
+            <h3 id="statListedItems">0</h3>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon purple">💰</div>
+          <div class="metric-info">
+            <span class="metric-label">Marked Sold</span>
+            <h3 id="statSoldItems">0</h3>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon red">⚠️</div>
+          <div class="metric-info">
+            <span class="metric-label">Scam Reports</span>
+            <h3 id="statPendingReports">0</h3>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon orange">👥</div>
+          <div class="metric-info">
+            <span class="metric-label">Registered Users</span>
+            <h3 id="statTotalUsers">0</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Sub Navigation Tabs -->
+      <div class="admin-subtabs">
+        <button id="adminTabItems" class="admin-subtab-btn active">📦 Manage Items & Delete</button>
+        <button id="adminTabReports" class="admin-subtab-btn">⚠️ Scam & Abuse Reports (<span id="adminReportsBadge">0</span>)</button>
+        <button id="adminTabUsers" class="admin-subtab-btn">👥 User Accounts</button>
+      </div>
+
+      <!-- Admin Items Table Section -->
+      <div id="adminSectionItems" class="admin-section">
+        <div class="admin-section-header">
+          <h4>Marketplace Inventory Management</h4>
+          <div class="admin-table-filters">
+            <input type="text" id="adminItemSearch" placeholder="Search item title, seller, city...">
+            <select id="adminStatusFilter">
+              <option value="all">All Statuses</option>
+              <option value="listed">Listed (Active)</option>
+              <option value="sold">Sold</option>
+              <option value="reserved">Reserved</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table" id="adminItemsTable">
+            <thead>
+              <tr>
+                <th>Item Preview</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Location</th>
+                <th>Seller</th>
+                <th>Status</th>
+                <th>Reports</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminItemsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Admin Reports Table Section -->
+      <div id="adminSectionReports" class="admin-section hidden">
+        <div class="admin-section-header">
+          <h4>Scam & Fraud Reports Review</h4>
+          <span class="subtext">Review reported listings and protect the community from fraud</span>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table" id="adminReportsTable">
+            <thead>
+              <tr>
+                <th>Reported Item</th>
+                <th>Reason</th>
+                <th>Description / Details</th>
+                <th>Seller</th>
+                <th>Reporter</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminReportsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Admin Users Table Section -->
+      <div id="adminSectionUsers" class="admin-section hidden">
+        <div class="admin-section-header">
+          <h4>Registered Users Management</h4>
+          <span class="subtext">View user accounts and manage administrator roles</span>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table" id="adminUsersTable">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Total Ads</th>
+                <th>Member Since</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- App Download Promo Banner -->
+  <section class="app-promo-banner">
+    <div class="app-promo-container">
+      <div class="promo-text">
+        <h2>TRY THE OLX EXPERIENCE TODAY</h2>
+        <p>Buy, sell and find just about anything using the app on your mobile.</p>
+      </div>
+      <div class="app-badges">
+        <span class="badge-mock">App Store</span>
+        <span class="badge-mock">Google Play</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- OLX Footer -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-col">
+        <h4>POPULAR LOCATIONS</h4>
+        <ul>
+          <li><a href="#" class="footer-loc" data-location="Kolkata, West Bengal">Kolkata</a></li>
+          <li><a href="#" class="footer-loc" data-location="Mumbai, Maharashtra">Mumbai</a></li>
+          <li><a href="#" class="footer-loc" data-location="Chennai, Tamil Nadu">Chennai</a></li>
+          <li><a href="#" class="footer-loc" data-location="Pune, Maharashtra">Pune</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>TRENDING LOCATIONS</h4>
+        <ul>
+          <li><a href="#" class="footer-loc" data-location="Bengaluru, Karnataka">Bengaluru</a></li>
+          <li><a href="#" class="footer-loc" data-location="Hyderabad, Telangana">Hyderabad</a></li>
+          <li><a href="#" class="footer-loc" data-location="Delhi, NCR">Delhi</a></li>
+          <li><a href="#" class="footer-loc" data-location="Noida, Uttar Pradesh">Noida</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>ABOUT US</h4>
+        <ul>
+          <li><a href="#">About OLX Group</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">OLX for Businesses</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>OLX TRUST & SAFETY</h4>
+        <ul>
+          <li><a href="#">Report a Scam</a></li>
+          <li><a href="#">Safety Guidelines</a></li>
+          <li><a href="#">Legal & Privacy</a></li>
+          <li><a href="#">Community Standards</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-bottom-container">
+        <span>Help - Sitemap</span>
+        <span>All rights reserved © 2006-2026 OLX Clone (MERN)</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. Item Details Modal -->
+  <div id="detailsModal" class="modal-overlay hidden">
+    <div class="modal-container item-modal-container">
+      <button class="modal-close" id="closeDetailsModal">&times;</button>
+      <div class="modal-body item-modal-body">
+        <!-- Left: Image & Description -->
+        <div class="item-modal-left">
+          <div class="item-modal-image-wrapper">
+            <img id="detailImage" src="" alt="Listing Image">
+            <div id="detailStatusBadge" class="detail-status-pill listed">Listed</div>
+          </div>
+          <div class="item-modal-section">
+            <h4>Description</h4>
+            <p id="detailDescription" class="detail-description"></p>
+          </div>
+          <div class="item-modal-section details-info-grid">
+            <div>
+              <span class="info-label">Category:</span>
+              <span id="detailCategory" class="info-val"></span>
+            </div>
+            <div>
+              <span class="info-label">Location:</span>
+              <span id="detailLocation" class="info-val"></span>
+            </div>
+            <div>
+              <span class="info-label">Date Posted:</span>
+              <span id="detailDate" class="info-val"></span>
+            </div>
+            <div>
+              <span class="info-label">Ad ID:</span>
+              <span id="detailId" class="info-val"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Price, Seller & Actions -->
+        <div class="item-modal-right">
+          <!-- Price Card -->
+          <div class="price-box">
+            <div class="price-row">
+              <span class="detail-price" id="detailPrice">₹ 0</span>
+              <button class="favorite-icon-btn" id="detailFavBtn" title="Add to favorites">
+                <span id="detailFavIcon">🤍</span>
+              </button>
+            </div>
+            <h3 id="detailTitle" class="detail-title"></h3>
+            <div class="detail-subtext">
+              <span id="detailSubLocation"></span>
+              <span id="detailSubDate"></span>
+            </div>
+          </div>
+
+          <!-- Seller Info Box (Clickable to view seller profile & all their products) -->
+          <div class="seller-box" id="sellerBoxCard">
+            <div class="seller-box-title-row">
+              <h4>Seller Information</h4>
+              <span class="view-profile-hint">Click to see all listings ➜</span>
+            </div>
+            <div class="seller-profile clickable-seller" id="detailSellerProfileClick">
+              <div class="seller-avatar" id="detailSellerAvatar">👤</div>
+              <div class="seller-details">
+                <div class="seller-name-row">
+                  <span class="seller-name" id="detailSellerName">Seller Name</span>
+                  <span class="verified-tick" title="Verified Member">✓</span>
+                </div>
+                <div class="seller-member">Member since <span id="detailSellerMember">2023</span></div>
+                <div class="seller-view-link">View all products released by this seller</div>
+              </div>
+            </div>
+            <div class="seller-contact-actions">
+              <button id="showPhoneBtn" class="chat-btn">
+                📞 <span id="phoneText">Show Phone Number</span>
+              </button>
+              <button id="chatSellerBtn" class="contact-seller-btn">
+                💬 Chat with seller
+              </button>
+            </div>
+          </div>
+
+          <!-- Safety Tips Box -->
+          <div class="safety-box">
+            <h4>Safety Tips for Buyers</h4>
+            <ul>
+              <li>Meet seller at a safe, public place</li>
+              <li>Check the item before you buy</li>
+              <li>Pay only after collecting the item</li>
+              <li>Never wire funds or scan UPI QR codes in advance</li>
+            </ul>
+          </div>
+
+          <!-- Report Button -->
+          <div class="report-box">
+            <button id="openReportModalBtn" class="report-ad-btn">
+              ⚠️ Report this Ad (Scam or Inappropriate)
+            </button>
+          </div>
+
+          <!-- Owner / Admin Controls -->
+          <div id="ownerActions" class="owner-actions hidden">
+            <div class="owner-status-control">
+              <label for="itemStatusSelect">Status:</label>
+              <select id="itemStatusSelect">
+                <option value="listed">Listed (Active)</option>
+                <option value="sold">Mark as Sold</option>
+                <option value="reserved">Mark as Reserved</option>
+              </select>
+            </div>
+            <button id="deleteAdBtn" class="delete-ad-btn">🗑️ Delete Listing</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Seller Profile Modal (Shows all items posted by this user) -->
+  <div id="sellerModal" class="modal-overlay hidden">
+    <div class="modal-container seller-modal-container">
+      <button class="modal-close" id="closeSellerModal">&times;</button>
+      <div class="seller-modal-header">
+        <div class="seller-header-left">
+          <div class="seller-big-avatar" id="sellerProfileAvatar">👤</div>
+          <div>
+            <h3 id="sellerProfileName">Seller Name</h3>
+            <p id="sellerProfileMember">Member since Jan 2024</p>
+            <p id="sellerProfilePhone" class="seller-profile-phone">📞 +91 00000 00000</p>
+          </div>
+        </div>
+        <div class="seller-header-stats">
+          <div class="seller-stat-badge">
+            <span class="num" id="sellerTotalAds">0</span>
+            <span class="lbl">Total Ads</span>
+          </div>
+          <div class="seller-stat-badge">
+            <span class="num" id="sellerActiveAds">0</span>
+            <span class="lbl">Active Listed</span>
+          </div>
+          <div class="seller-stat-badge">
+            <span class="num" id="sellerSoldAds">0</span>
+            <span class="lbl">Sold</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="seller-modal-tabs">
+        <button class="seller-tab-btn active" data-status="all" id="sellerTabAll">All Products Released</button>
+        <button class="seller-tab-btn" data-status="listed" id="sellerTabListed">Available</button>
+        <button class="seller-tab-btn" data-status="sold" id="sellerTabSold">Sold</button>
+      </div>
+
+      <div class="seller-products-wrapper">
+        <div id="sellerProductsGrid" class="items-grid seller-grid">
+          <!-- Populated dynamically -->
+        </div>
+        <div id="sellerEmptyProducts" class="empty-state hidden">
+          <p>No listings released by this user in this category.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Report Listing Modal -->
+  <div id="reportModal" class="modal-overlay hidden">
+    <div class="modal-container report-modal-container">
+      <button class="modal-close" id="closeReportModal">&times;</button>
+      <div class="report-header">
+        <span class="report-badge-icon">⚠️</span>
+        <h3>Report this Ad</h3>
+        <p>Help us keep OLX safe. Reports are monitored 24/7 by our trust & safety team.</p>
+      </div>
+
+      <div class="report-item-preview" id="reportItemPreview">
+        <div class="report-item-title" id="reportItemTitle">Item Title</div>
+      </div>
+
+      <form id="reportForm" class="report-form">
+        <div class="form-group">
+          <label for="reportReason">Reason for Report *</label>
+          <select id="reportReason" required>
+            <option value="">Select a reason</option>
+            <option value="Scam or Fraud">Scam or Fraud (Asked advance payment / Fake UPI)</option>
+            <option value="Counterfeit Product">Counterfeit or Fake Product</option>
+            <option value="Inappropriate Content">Inappropriate or Offensive Content</option>
+            <option value="Duplicate Ad">Duplicate or Repeated Listing</option>
+            <option value="Misleading Information">Misleading Price or Specifications</option>
+            <option value="Other">Other Violation</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="reportDescription">Additional Details</label>
+          <textarea id="reportDescription" rows="3" placeholder="Provide any additional context or proof of suspicious activity..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="reporterEmail">Your Contact Email (Optional)</label>
+          <input type="email" id="reporterEmail" placeholder="your@email.com">
+        </div>
+
+        <div class="report-submit-box">
+          <button type="button" id="cancelReportBtn" class="cancel-btn">Cancel</button>
+          <button type="submit" id="submitReportBtn" class="submit-report-btn">Submit Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Chat / Conversation Modal -->
+  <div id="chatModal" class="modal-overlay hidden">
+    <div class="modal-container chat-modal-container">
+      <button class="modal-close" id="closeChatModal">&times;</button>
+      
+      <!-- Chat Header -->
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-avatar">👤</div>
+          <div>
+            <h4 id="chatParticipantName">Chat with Seller</h4>
+            <span class="chat-status-indicator">● Active now</span>
+          </div>
+        </div>
+        <div class="chat-item-summary" id="chatItemSummary">
+          <img id="chatItemImg" src="" alt="Item">
+          <div class="chat-item-meta">
+            <span id="chatItemTitle" class="item-title">Item Title</span>
+            <span id="chatItemPrice" class="item-price">₹ 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Thread -->
+      <div class="chat-messages-area" id="chatMessagesArea">
+        <div class="chat-loading">Loading conversation...</div>
+      </div>
+
+      <!-- Message Input Form -->
+      <form id="chatInputForm" class="chat-input-form">
+        <input type="text" id="chatInputText" placeholder="Type your message here..." autocomplete="off" required>
+        <button type="submit" id="chatSendBtn" class="chat-send-btn">
+          <span>Send</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Conversations List / Inbox Modal -->
+  <div id="inboxModal" class="modal-overlay hidden">
+    <div class="modal-container inbox-modal-container">
+      <button class="modal-close" id="closeInboxModal">&times;</button>
+      <div class="inbox-header">
+        <h3>💬 Your Messages & Chats</h3>
+        <p>Direct conversations with buyers and sellers</p>
+      </div>
+      <div class="inbox-list" id="inboxList">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Post Your Ad (Sell Modal) -->
+  <div id="sellModal" class="modal-overlay hidden">
+    <div class="modal-container sell-modal-container">
+      <button class="modal-close" id="closeSellModal">&times;</button>
+      <div class="sell-header">
+        <h3>POST YOUR AD</h3>
+        <p>Images are converted & stored directly in MongoDB database</p>
+      </div>
+      <form id="sellForm" class="sell-form">
+        <!-- Category -->
+        <div class="form-group">
+          <label for="sellCategory">Category *</label>
+          <select id="sellCategory" name="category" required>
+            <option value="">Select a category</option>
+            <option value="Cars">Cars</option>
+            <option value="Motorcycles">Motorcycles</option>
+            <option value="Mobile Phones">Mobile Phones</option>
+            <option value="Houses & Apartments">Houses & Apartments</option>
+            <option value="Scooters">Scooters</option>
+            <option value="Commercial Vehicles">Commercial Vehicles</option>
+            <option value="Electronics & Appliances">Electronics & Appliances</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Ad Title -->
+        <div class="form-group">
+          <label for="sellTitle">Ad Title *</label>
+          <input type="text" id="sellTitle" name="title" placeholder="Brand, model, key features" required maxlength="100">
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="sellDesc">Description *</label>
+          <textarea id="sellDesc" name="description" rows="3" placeholder="Condition, reason for selling, accessories included etc." required></textarea>
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label for="sellPrice">Price (₹) *</label>
+          <div class="input-with-symbol">
+            <span class="currency-symbol">₹</span>
+            <input type="number" id="sellPrice" name="price" placeholder="Price" min="1" required>
+          </div>
+        </div>
+
+        <!-- Searchable Location Dropdown (No random user input!) -->
+        <div class="form-group">
+          <label for="sellLocationInput">Location (Select from list) *</label>
+          <div class="sell-location-combobox-wrapper" id="sellLocationWrapper">
+            <input type="text" id="sellLocationInput" placeholder="Type to search City or State..." autocomplete="off" required>
+            <input type="hidden" id="sellLocationValue" name="location">
+            <div id="sellLocationDropdown" class="custom-dropdown-menu hidden">
+              <div id="sellLocationSuggestions" class="suggestions-list">
+                <!-- Filtered location options -->
+              </div>
+            </div>
+          </div>
+          <small class="form-hint">Please choose your city from the verified locations dropdown menu</small>
+        </div>
+
+        <!-- Actual Image Upload (Stored in DB as Base64) -->
+        <div class="form-group">
+          <label>Item Image (Saved into Database) *</label>
+          <div class="image-upload-dropzone" id="imageDropzone">
+            <input type="file" id="sellImageFileInput" accept="image/*" class="file-input-hidden">
+            <div class="dropzone-content" id="dropzoneContent">
+              <span class="upload-icon">📷</span>
+              <p>Click or drag & drop to upload picture</p>
+              <small>PNG, JPG, WebP (Max 8MB, directly converted to Base64 in DB)</small>
+            </div>
+            <div id="imagePreviewContainer" class="image-preview-container hidden">
+              <img id="imagePreview" src="" alt="Preview">
+              <button type="button" id="removeImageBtn" class="remove-img-btn">&times;</button>
+            </div>
+          </div>
+          <input type="hidden" id="sellImageBase64">
+        </div>
+
+        <!-- Seller Contact Details -->
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="sellName">Seller Name *</label>
+            <input type="text" id="sellName" name="sellerName" placeholder="Your name" required>
+          </div>
+          <div class="form-group half">
+            <label for="sellPhone">Seller Phone Number *</label>
+            <input type="tel" id="sellPhone" name="sellerPhone" placeholder="+91 98765 43210" required>
+          </div>
+        </div>
+
+        <div id="sellError" class="form-error hidden"></div>
+
+        <div class="sell-submit-box">
+          <button type="submit" id="sellSubmitBtn" class="submit-ad-btn">Post now</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. Authentication Modal (Login / Register / Quick Demo Accounts) -->
+  <div id="authModal" class="modal-overlay hidden">
+    <div class="modal-container auth-modal-container">
+      <button class="modal-close" id="closeAuthModal">&times;</button>
+      
+      <div class="auth-tabs">
+        <button id="authTabLogin" class="auth-tab-btn active">Login</button>
+        <button id="authTabRegister" class="auth-tab-btn">Register</button>
+      </div>
+
+      <!-- Quick Demo Login Bar -->
+      <div class="quick-demo-bar">
+        <span>Quick Demo Login:</span>
+        <div class="quick-demo-buttons">
+          <button type="button" class="demo-login-btn" id="demoAdminBtn">🛡️ Admin</button>
+          <button type="button" class="demo-login-btn" id="demoSellerBtn">👤 Seller (Rohit)</button>
+          <button type="button" class="demo-login-btn" id="demoBuyerBtn">🛍️ Buyer (Sneha)</button>
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form">
+        <h3>Welcome to OLX</h3>
+        <p class="auth-sub">Enter credentials with bcrypt secured password hashing.</p>
+        <div class="form-group">
+          <label for="loginEmail">Email address</label>
+          <input type="email" id="loginEmail" required placeholder="admin@olx.com or rohit@example.com">
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required placeholder="Enter password (e.g. admin123)">
+        </div>
+        <div id="loginError" class="form-error hidden"></div>
+        <button type="submit" class="auth-submit-btn">Login</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form hidden">
+        <h3>Create an Account</h3>
+        <p class="auth-sub">Passwords are safely stored as salted bcrypt hashes.</p>
+        <div class="form-group">
+          <label for="regName">Full Name</label>
+          <input type="text" id="regName" required placeholder="e.g. Amit Kumar">
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email address</label>
+          <input type="email" id="regEmail" required placeholder="name@example.com">
+        </div>
+        <div class="form-group">
+          <label for="regPhone">Phone Number</label>
+          <input type="tel" id="regPhone" placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group">
+          <label for="regPassword">Password (Salted Hash)</label>
+          <input type="password" id="regPassword" required placeholder="Min 6 characters">
+        </div>
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="regIsAdmin">
+            <span>Register as Administrator (Access to Admin Panel)</span>
+          </label>
+        </div>
+        <div id="registerError" class="form-error hidden"></div>
+        <button type="submit" class="auth-submit-btn">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
