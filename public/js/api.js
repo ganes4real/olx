@@ -65,12 +65,12 @@ const API = {
     return await res.json();
   },
 
-  // Auth API
-  async login(email, password) {
+  // Auth API — identifier can be userId (e.g. test101), email, or username
+  async login(identifier, password) {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ identifier, password })
     });
     return await res.json();
   },

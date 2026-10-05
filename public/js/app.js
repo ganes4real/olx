@@ -11,8 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     activeLocation: 'All India',
     searchQuery: '',
     sortBy: 'newest',
-    activeTab: 'all', // 'all', 'categories', 'favorites', 'myAds', 'admin'
-    adminSubTab: 'items', // 'items', 'reports', 'users'
+    activeTab: 'all', // 'all', 'categories', 'favorites', 'myAds'
     limit: 20,
     currentUser: JSON.parse(localStorage.getItem('olx_user') || 'null'),
     favoriteIds: new Set(),
@@ -71,36 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabCategories = document.getElementById('tabCategories');
   const tabFavorites = document.getElementById('tabFavorites');
   const tabMyAds = document.getElementById('tabMyAds');
-  const tabAdmin = document.getElementById('tabAdmin');
 
   // Categories Explorer View
   const categoriesTabContainer = document.getElementById('categoriesTabContainer');
   const categoryCardsGrid = document.getElementById('categoryCardsGrid');
 
-  // Admin Panel View Elements
-  const adminPanelContainer = document.getElementById('adminPanelContainer');
-  const navAdminBtn = document.getElementById('navAdminBtn');
-  const heroAdminQuickBtn = document.getElementById('heroAdminQuickBtn');
-  const refreshAdminStatsBtn = document.getElementById('refreshAdminStatsBtn');
-  const statTotalItems = document.getElementById('statTotalItems');
-  const statListedItems = document.getElementById('statListedItems');
-  const statSoldItems = document.getElementById('statSoldItems');
-  const statPendingReports = document.getElementById('statPendingReports');
-  const statTotalUsers = document.getElementById('statTotalUsers');
-  const adminReportsBadge = document.getElementById('adminReportsBadge');
 
-  const adminTabItems = document.getElementById('adminTabItems');
-  const adminTabReports = document.getElementById('adminTabReports');
-  const adminTabUsers = document.getElementById('adminTabUsers');
-  const adminSectionItems = document.getElementById('adminSectionItems');
-  const adminSectionReports = document.getElementById('adminSectionReports');
-  const adminSectionUsers = document.getElementById('adminSectionUsers');
 
-  const adminItemsTableBody = document.getElementById('adminItemsTableBody');
-  const adminReportsTableBody = document.getElementById('adminReportsTableBody');
-  const adminUsersTableBody = document.getElementById('adminUsersTableBody');
-  const adminItemSearch = document.getElementById('adminItemSearch');
-  const adminStatusFilter = document.getElementById('adminStatusFilter');
 
   // Detail Modal Elements
   const detailsModal = document.getElementById('detailsModal');
@@ -249,26 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateAuthUI() {
     if (state.currentUser) {
-      const isAdmin = state.currentUser.role === 'admin';
       authContainer.innerHTML = `
         <div class="user-badge-wrapper">
           <span class="user-name-tag">👋 ${state.currentUser.name}</span>
-          ${isAdmin ? '<span class="admin-chip">ADMIN</span>' : ''}
+          ${state.currentUser.role === 'admin' ? '<span class="admin-chip">ADMIN</span>' : ''}
           <button id="logoutBtn" class="logout-link">Logout</button>
         </div>
       `;
       document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-
-      // Highlight admin button if user is admin
-      if (isAdmin) {
-        navAdminBtn.style.borderColor = 'var(--olx-yellow)';
-        navAdminBtn.style.backgroundColor = '#fdf8e6';
-      } else {
-        navAdminBtn.style.borderColor = 'var(--olx-border)';
-        navAdminBtn.style.backgroundColor = '#ffffff';
-      }
-
-      // Sync user favorites from server
       syncUserFavorites();
       updateChatBadge();
     } else {
@@ -314,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('olx_user');
     updateAuthUI();
     showToast('Logged out successfully');
-    if (state.activeTab === 'admin' || state.activeTab === 'myAds') {
+    if (state.activeTab === 'myAds') {
       switchTab('all');
     } else {
       loadItems();
@@ -322,11 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Quick Demo Buttons
-  demoAdminBtn.addEventListener('click', async () => {
-    document.getElementById('loginEmail').value = 'admin@olx.com';
-    document.getElementById('loginPassword').value = 'admin123';
-    await executeLogin('admin@olx.com', 'admin123');
-  });
+  if (demoAdminBtn) {
+    demoAdminBtn.addEventListener('click', async () => {
+      document.getElementById('loginEmail').value = 'test101';
+      document.getElementById('loginPassword').value = 'pass101';
+      await executeLogin('test101', 'pass101');
+    });
+  }
 
   demoSellerBtn.addEventListener('click', async () => {
     document.getElementById('loginEmail').value = 'rohit@example.com';
@@ -340,19 +306,23 @@ document.addEventListener('DOMContentLoaded', () => {
     await executeLogin('buyer@example.com', 'buyer123');
   });
 
-  async function executeLogin(email, password) {
+  async function executeLogin(identifier, password) {
     try {
       loginError.classList.add('hidden');
-      const res = await API.login(email, password);
+      const res = await API.login(identifier, password);
       if (res.success) {
         state.currentUser = res.user;
         localStorage.setItem('olx_user', JSON.stringify(res.user));
         updateAuthUI();
         closeModal(authModal);
-        showToast(`Welcome back, ${res.user.name}!`);
+        if (res.user.role === 'admin') {
+          showToast(`Welcome, Admin ${res.user.name}! 🛡️`);
+        } else {
+          showToast(`Welcome back, ${res.user.name}!`);
+        }
         loadItems();
       } else {
-        loginError.textContent = res.message || 'Login failed';
+        loginError.textContent = res.message || 'Invalid credentials. Please try again.';
         loginError.classList.remove('hidden');
       }
     } catch (err) {
@@ -870,6 +840,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Show Phone Number
   showPhoneBtn.addEventListener('click', () => {
+    if (!state.currentUser) {
+      showToast('Please login to view seller phone number');
+      openModal(authModal);
+      return;
+    }
     if (state.activeDetailItem) {
       phoneText.textContent = state.activeDetailItem.sellerPhone || '+91 98201 12345';
     }
@@ -1176,337 +1151,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Admin Panel Functionality (Delete items, manage reports, users)
   // ===================================================
 
-  navAdminBtn.addEventListener('click', () => {
-    switchTab('admin');
-  });
-
-  heroAdminQuickBtn.addEventListener('click', () => {
-    switchTab('admin');
-  });
-
-  refreshAdminStatsBtn.addEventListener('click', () => {
-    loadAdminStats();
-    loadAdminItemsTable();
-    loadAdminReportsTable();
-    loadAdminUsersTable();
-    showToast('Admin data refreshed');
-  });
-
-  async function loadAdminStats() {
-    try {
-      const res = await API.getAdminStats();
-      if (res.success && res.stats) {
-        statTotalItems.textContent = res.stats.totalItems;
-        statListedItems.textContent = res.stats.listedItems;
-        statSoldItems.textContent = res.stats.soldItems;
-        statPendingReports.textContent = res.stats.pendingReports;
-        statTotalUsers.textContent = res.stats.totalUsers;
-        adminReportsBadge.textContent = res.stats.totalReports;
-      }
-    } catch (err) {
-      console.warn('Error loading admin stats:', err);
-    }
-  }
-
-  async function loadAdminItemsTable() {
-    try {
-      adminItemsTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">Loading inventory...</td></tr>';
-      
-      const search = adminItemSearch.value;
-      const status = adminStatusFilter.value;
-      const res = await API.getAdminItems({ search, status });
-
-      if (res.success && res.items) {
-        if (res.items.length === 0) {
-          adminItemsTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#577376;">No items found.</td></tr>';
-          return;
-        }
-
-        adminItemsTableBody.innerHTML = res.items.map(item => `
-          <tr data-id="${item._id}">
-            <td>
-              <div class="table-item-preview">
-                <img src="${item.image}" class="table-item-thumb" alt="Thumb">
-                <div class="table-item-meta">
-                  <div class="title" title="${escapeHtml(item.title)}">${escapeHtml(item.title)}</div>
-                  <div class="id">ID: ${item._id.substring(0, 10)}...</div>
-                </div>
-              </div>
-            </td>
-            <td>${escapeHtml(item.category)}</td>
-            <td><strong>${formatCurrency(item.price)}</strong></td>
-            <td>${escapeHtml(item.location)}</td>
-            <td>
-              <div><strong>${escapeHtml(item.sellerName)}</strong></div>
-              <small style="color:#577376;">${escapeHtml(item.sellerPhone)}</small>
-            </td>
-            <td>
-              <span class="status-pill ${item.status || 'listed'}">${item.status || 'listed'}</span>
-            </td>
-            <td>
-              ${item.reportCount > 0 ? `<span class="status-pill pending">⚠️ ${item.reportCount} reports</span>` : '<span style="color:#888;">None</span>'}
-            </td>
-            <td>
-              <button class="btn-admin-action btn-mark-status" data-action="toggle-status" data-id="${item._id}" data-current="${item.status}">
-                ${item.status === 'sold' ? 'Mark Listed' : 'Mark Sold'}
-              </button>
-              <button class="btn-admin-action btn-delete-item" data-action="delete" data-id="${item._id}" data-title="${escapeHtml(item.title)}">
-                🗑️ Delete
-              </button>
-            </td>
-          </tr>
-        `).join('');
-
-        // Attach action handlers
-        adminItemsTableBody.querySelectorAll('[data-action="delete"]').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            const title = btn.getAttribute('data-title');
-            if (!confirm(`ADMIN ACTION:\nAre you sure you want to permanently delete "${title}" from the database?`)) return;
-
-            try {
-              const res = await API.adminDeleteItem(id);
-              if (res.success) {
-                showToast(`Item "${title}" deleted by Admin!`);
-                loadAdminItemsTable();
-                loadAdminStats();
-                loadItems();
-              }
-            } catch (err) {
-              showToast('Admin delete failed');
-            }
-          });
-        });
-
-        adminItemsTableBody.querySelectorAll('[data-action="toggle-status"]').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            const current = btn.getAttribute('data-current');
-            const newStatus = current === 'sold' ? 'listed' : 'sold';
-
-            try {
-              const res = await API.adminUpdateItemStatus(id, newStatus);
-              if (res.success) {
-                showToast(`Status updated to ${newStatus}`);
-                loadAdminItemsTable();
-                loadAdminStats();
-                loadItems();
-              }
-            } catch (err) {
-              showToast('Failed updating status');
-            }
-          });
-        });
-      }
-    } catch (err) {
-      adminItemsTableBody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">Failed loading inventory</td></tr>';
-    }
-  }
-
-  adminItemSearch.addEventListener('input', () => {
-    loadAdminItemsTable();
-  });
-
-  adminStatusFilter.addEventListener('change', () => {
-    loadAdminItemsTable();
-  });
-
-  async function loadAdminReportsTable() {
-    try {
-      adminReportsTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px;">Loading scam reports...</td></tr>';
-      const res = await API.getReports();
-
-      if (res.success && res.reports) {
-        if (res.reports.length === 0) {
-          adminReportsTableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:#577376;">No reports on file. Community is clean!</td></tr>';
-          return;
-        }
-
-        adminReportsTableBody.innerHTML = res.reports.map(rep => `
-          <tr data-report-id="${rep._id}">
-            <td>
-              <strong>${escapeHtml(rep.itemTitle)}</strong>
-              <div style="font-size:11px; color:#577376;">Item ID: ${rep.itemId ? (rep.itemId._id || rep.itemId).toString().substring(0, 10) + '...' : 'N/A'}</div>
-            </td>
-            <td><span class="status-pill pending">${escapeHtml(rep.reason)}</span></td>
-            <td style="max-width:240px; word-break:break-word;">${escapeHtml(rep.description || 'No description provided')}</td>
-            <td>${escapeHtml(rep.sellerName)}</td>
-            <td>
-              <div>${escapeHtml(rep.reporterName)}</div>
-              <small style="color:#577376;">${escapeHtml(rep.reporterEmail || '')}</small>
-            </td>
-            <td>${formatDate(rep.createdAt)}</td>
-            <td><span class="status-pill ${rep.status}">${rep.status}</span></td>
-            <td>
-              ${rep.itemId ? `
-                <button class="btn-admin-action btn-delete-item" data-action="delete-reported-item" data-item-id="${rep.itemId._id || rep.itemId}" data-report-id="${rep._id}">
-                  🗑️ Delete Ad
-                </button>
-              ` : ''}
-              <button class="btn-admin-action btn-resolve-report" data-action="resolve-report" data-id="${rep._id}">
-                ✓ Resolve
-              </button>
-              <button class="btn-admin-action btn-dismiss-report" data-action="dismiss-report" data-id="${rep._id}">
-                Dismiss
-              </button>
-            </td>
-          </tr>
-        `).join('');
-
-        adminReportsTableBody.querySelectorAll('[data-action="delete-reported-item"]').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const itemId = btn.getAttribute('data-item-id');
-            const reportId = btn.getAttribute('data-report-id');
-            if (!confirm('ADMIN ACTION:\nDelete this reported scam listing immediately and resolve report?')) return;
-
-            try {
-              await API.adminDeleteItem(itemId);
-              await API.updateReportStatus(reportId, 'resolved', 'Listing removed by administrator due to scam violation');
-              showToast('Scam item removed & report resolved! 🛡️');
-              loadAdminReportsTable();
-              loadAdminItemsTable();
-              loadAdminStats();
-              loadItems();
-            } catch (e) {
-              showToast('Action failed');
-            }
-          });
-        });
-
-        adminReportsTableBody.querySelectorAll('[data-action="resolve-report"]').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            await API.updateReportStatus(id, 'resolved');
-            showToast('Report marked as resolved');
-            loadAdminReportsTable();
-            loadAdminStats();
-          });
-        });
-
-        adminReportsTableBody.querySelectorAll('[data-action="dismiss-report"]').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            await API.updateReportStatus(id, 'dismissed');
-            showToast('Report dismissed');
-            loadAdminReportsTable();
-            loadAdminStats();
-          });
-        });
-      }
-    } catch (err) {
-      adminReportsTableBody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">Failed loading reports</td></tr>';
-    }
-  }
-
-  async function loadAdminUsersTable() {
-    try {
-      adminUsersTableBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">Loading users...</td></tr>';
-      const res = await API.getAdminUsers();
-
-      if (res.success && res.users) {
-        adminUsersTableBody.innerHTML = res.users.map(u => `
-          <tr data-user-id="${u._id}">
-            <td><strong>${escapeHtml(u.name)}</strong></td>
-            <td>${escapeHtml(u.email)}</td>
-            <td>${escapeHtml(u.phone)}</td>
-            <td>
-              <span class="status-pill ${u.role === 'admin' ? 'reserved' : 'listed'}">
-                ${u.role.toUpperCase()}
-              </span>
-            </td>
-            <td><strong>${u.itemsCount}</strong> listings</td>
-            <td>${formatDate(u.createdAt)}</td>
-            <td>
-              <button class="btn-admin-action btn-mark-status" data-action="toggle-role" data-id="${u._id}" data-role="${u.role}">
-                ${u.role === 'admin' ? 'Make User' : 'Make Admin'}
-              </button>
-              <button class="btn-admin-action btn-delete-item" data-action="delete-user" data-id="${u._id}" data-name="${escapeHtml(u.name)}">
-                Delete User
-              </button>
-            </td>
-          </tr>
-        `).join('');
-
-        adminUsersTableBody.querySelectorAll('[data-action="toggle-role"]').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            const current = btn.getAttribute('data-role');
-            const newRole = current === 'admin' ? 'user' : 'admin';
-            try {
-              const res = await API.adminToggleUserRole(id, newRole);
-              if (res.success) {
-                showToast(`Role changed to ${newRole}`);
-                loadAdminUsersTable();
-                if (state.currentUser && state.currentUser.id === id) {
-                  state.currentUser.role = newRole;
-                  localStorage.setItem('olx_user', JSON.stringify(state.currentUser));
-                  updateAuthUI();
-                }
-              }
-            } catch (err) {
-              showToast('Role update failed');
-            }
-          });
-        });
-
-        adminUsersTableBody.querySelectorAll('[data-action="delete-user"]').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            const id = btn.getAttribute('data-id');
-            const name = btn.getAttribute('data-name');
-            if (!confirm(`Are you sure you want to delete user "${name}" and all their listings?`)) return;
-
-            try {
-              const res = await API.adminDeleteUser(id);
-              if (res.success) {
-                showToast(`User ${name} removed`);
-                loadAdminUsersTable();
-                loadAdminStats();
-                loadItems();
-              }
-            } catch (err) {
-              showToast('Delete user failed');
-            }
-          });
-        });
-      }
-    } catch (err) {
-      adminUsersTableBody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Failed loading users</td></tr>';
-    }
-  }
-
-  // Admin Subtabs navigation
-  adminTabItems.addEventListener('click', () => {
-    adminTabItems.classList.add('active');
-    adminTabReports.classList.remove('active');
-    adminTabUsers.classList.remove('active');
-    adminSectionItems.classList.remove('hidden');
-    adminSectionReports.classList.add('hidden');
-    adminSectionUsers.classList.add('hidden');
-    loadAdminItemsTable();
-  });
-
-  adminTabReports.addEventListener('click', () => {
-    adminTabReports.classList.add('active');
-    adminTabItems.classList.remove('active');
-    adminTabUsers.classList.remove('active');
-    adminSectionReports.classList.remove('hidden');
-    adminSectionItems.classList.add('hidden');
-    adminSectionUsers.classList.add('hidden');
-    loadAdminReportsTable();
-  });
-
-  adminTabUsers.addEventListener('click', () => {
-    adminTabUsers.classList.add('active');
-    adminTabItems.classList.remove('active');
-    adminTabReports.classList.remove('active');
-    adminSectionUsers.classList.remove('hidden');
-    adminSectionItems.classList.add('hidden');
-    adminSectionReports.classList.add('hidden');
-    loadAdminUsersTable();
-  });
 
   // ===================================================
-  // Navigation Tabs Switching (All, Categories, Favorites, My Ads, Admin)
+  // Navigation Tabs Switching (All, Categories, Favorites, My Ads)
   // ===================================================
 
   function switchTab(tabName) {
@@ -1517,12 +1164,10 @@ document.addEventListener('DOMContentLoaded', () => {
     tabCategories.classList.remove('active');
     tabFavorites.classList.remove('active');
     tabMyAds.classList.remove('active');
-    tabAdmin.classList.remove('active');
 
     // Hide all view containers
     itemsGridContainer.classList.add('hidden');
     categoriesTabContainer.classList.add('hidden');
-    adminPanelContainer.classList.add('hidden');
 
     if (tabName === 'all') {
       tabAll.classList.add('active');
@@ -1542,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sectionTitle.textContent = 'Your Saved Favorites';
       sortBox.classList.remove('hidden');
       if (!state.currentUser) {
-        showToast('Please login to see your favorites');
+        showToast('Please login to see your saved favorites');
         openModal(authModal);
       } else {
         loadItems();
@@ -1553,18 +1198,11 @@ document.addEventListener('DOMContentLoaded', () => {
       sectionTitle.textContent = 'My Marketplace Listings';
       sortBox.classList.remove('hidden');
       if (!state.currentUser) {
-        showToast('Please login to manage your ads');
+        showToast('Please login to manage your listings');
         openModal(authModal);
       } else {
         loadItems();
       }
-    } else if (tabName === 'admin') {
-      tabAdmin.classList.add('active');
-      adminPanelContainer.classList.remove('hidden');
-      sectionTitle.textContent = 'Administration Dashboard';
-      sortBox.classList.add('hidden');
-      loadAdminStats();
-      loadAdminItemsTable();
     }
   }
 
@@ -1572,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   tabCategories.addEventListener('click', () => switchTab('categories'));
   tabFavorites.addEventListener('click', () => switchTab('favorites'));
   tabMyAds.addEventListener('click', () => switchTab('myAds'));
-  tabAdmin.addEventListener('click', () => switchTab('admin'));
+
 
   // ===================================================
   // Filter Pills & Search
@@ -1860,26 +1498,49 @@ document.addEventListener('DOMContentLoaded', () => {
   registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     registerError.classList.add('hidden');
-    const name = document.getElementById('regName').value.trim();
-    const email = document.getElementById('regEmail').value.trim();
-    const phone = document.getElementById('regPhone').value.trim();
-    const password = document.getElementById('regPassword').value;
-    const role = document.getElementById('regIsAdmin').checked ? 'admin' : 'user';
 
-    if (password.length < 6) {
-      registerError.textContent = 'Password must be at least 6 characters long';
-      registerError.classList.remove('hidden');
-      return;
+    const name     = document.getElementById('regName').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const phone    = document.getElementById('regPhone').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const confirm  = document.getElementById('regConfirmPassword').value;
+
+    // --- Client-side regex validations ---
+    const nameRegex     = /^[a-zA-Z\s]{2,50}$/;
+    const emailRegex    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex    = /^(?:\+91[\s-]?)?[6-9]\d{9}$/;
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+
+    if (!nameRegex.test(name)) {
+      registerError.textContent = 'Name must be 2–50 characters and contain only letters and spaces.';
+      registerError.classList.remove('hidden'); return;
+    }
+    if (!emailRegex.test(email)) {
+      registerError.textContent = 'Please enter a valid email address.';
+      registerError.classList.remove('hidden'); return;
+    }
+    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+      registerError.textContent = 'Enter a valid 10-digit Indian mobile number (starting with 6–9), optionally with +91.';
+      registerError.classList.remove('hidden'); return;
+    }
+    if (!passwordRegex.test(password)) {
+      registerError.textContent = 'Password must be at least 6 characters and include at least one letter and one number.';
+      registerError.classList.remove('hidden'); return;
+    }
+    if (password !== confirm) {
+      registerError.textContent = 'Passwords do not match.';
+      registerError.classList.remove('hidden'); return;
     }
 
     try {
-      const res = await API.register(name, email, password, phone, role);
+      // Role is always 'user' — admin access is not grantable via registration
+      const res = await API.register(name, email, password, phone, 'user');
       if (res.success) {
         state.currentUser = res.user;
         localStorage.setItem('olx_user', JSON.stringify(res.user));
         updateAuthUI();
         closeModal(authModal);
-        showToast(`Account created! Welcome, ${res.user.name}`);
+        showToast(`Account created! Welcome, ${res.user.name} 🎉`);
         loadItems();
       } else {
         registerError.textContent = res.message || 'Registration failed';

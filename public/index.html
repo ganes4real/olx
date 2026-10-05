@@ -54,12 +54,6 @@
 
       <!-- User Nav Actions -->
       <div class="nav-actions">
-        <!-- Admin Panel Quick Link -->
-        <button id="navAdminBtn" class="nav-admin-btn" title="Open Admin Panel">
-          <span class="admin-shield">🛡️</span>
-          <span class="nav-btn-text">Admin Panel</span>
-        </button>
-
         <!-- Chat / Inbox Button -->
         <button id="navChatBtn" class="nav-chat-btn" title="Open Conversations">
           <span class="chat-icon">💬</span>
@@ -139,7 +133,6 @@
       </div>
       <div class="hero-actions">
         <button id="heroSellBtn" class="hero-sell-action">+ Start Selling Free</button>
-        <button id="heroAdminQuickBtn" class="hero-admin-action">🛡️ Admin Dashboard</button>
       </div>
     </div>
   </section>
@@ -160,7 +153,6 @@
           <button class="tab-btn" id="tabCategories">🗂️ Categories</button>
           <button class="tab-btn" id="tabFavorites">❤️ Favorites (<span id="favCount">0</span>)</button>
           <button class="tab-btn" id="tabMyAds">My Listings</button>
-          <button class="tab-btn admin-tab" id="tabAdmin">🛡️ Admin Panel</button>
         </div>
 
         <!-- Sort Select -->
@@ -224,157 +216,8 @@
       </div>
     </div>
 
-    <!-- VIEW 3: Admin Panel Full View -->
-    <div id="adminPanelContainer" class="admin-panel-view hidden">
-      <div class="admin-header-banner">
-        <div class="admin-title-area">
-          <span class="admin-crown">🛡️</span>
-          <div>
-            <h2>Marketplace Administration Panel</h2>
-            <p>Control inventory, delete listings, review scam reports, and manage verified users</p>
-          </div>
-        </div>
-        <div class="admin-actions">
-          <button id="refreshAdminStatsBtn" class="admin-refresh-btn">🔄 Refresh Data</button>
-        </div>
-      </div>
-
-      <!-- Admin Metrics Counter Cards -->
-      <div class="admin-metrics-grid">
-        <div class="metric-card">
-          <div class="metric-icon blue">📦</div>
-          <div class="metric-info">
-            <span class="metric-label">Total Listings</span>
-            <h3 id="statTotalItems">0</h3>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-icon green">✅</div>
-          <div class="metric-info">
-            <span class="metric-label">Active Listed</span>
-            <h3 id="statListedItems">0</h3>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-icon purple">💰</div>
-          <div class="metric-info">
-            <span class="metric-label">Marked Sold</span>
-            <h3 id="statSoldItems">0</h3>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-icon red">⚠️</div>
-          <div class="metric-info">
-            <span class="metric-label">Scam Reports</span>
-            <h3 id="statPendingReports">0</h3>
-          </div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-icon orange">👥</div>
-          <div class="metric-info">
-            <span class="metric-label">Registered Users</span>
-            <h3 id="statTotalUsers">0</h3>
-          </div>
-        </div>
-      </div>
-
-      <!-- Admin Sub Navigation Tabs -->
-      <div class="admin-subtabs">
-        <button id="adminTabItems" class="admin-subtab-btn active">📦 Manage Items & Delete</button>
-        <button id="adminTabReports" class="admin-subtab-btn">⚠️ Scam & Abuse Reports (<span id="adminReportsBadge">0</span>)</button>
-        <button id="adminTabUsers" class="admin-subtab-btn">👥 User Accounts</button>
-      </div>
-
-      <!-- Admin Items Table Section -->
-      <div id="adminSectionItems" class="admin-section">
-        <div class="admin-section-header">
-          <h4>Marketplace Inventory Management</h4>
-          <div class="admin-table-filters">
-            <input type="text" id="adminItemSearch" placeholder="Search item title, seller, city...">
-            <select id="adminStatusFilter">
-              <option value="all">All Statuses</option>
-              <option value="listed">Listed (Active)</option>
-              <option value="sold">Sold</option>
-              <option value="reserved">Reserved</option>
-            </select>
-          </div>
-        </div>
-        <div class="admin-table-wrapper">
-          <table class="admin-table" id="adminItemsTable">
-            <thead>
-              <tr>
-                <th>Item Preview</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Location</th>
-                <th>Seller</th>
-                <th>Status</th>
-                <th>Reports</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminItemsTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Admin Reports Table Section -->
-      <div id="adminSectionReports" class="admin-section hidden">
-        <div class="admin-section-header">
-          <h4>Scam & Fraud Reports Review</h4>
-          <span class="subtext">Review reported listings and protect the community from fraud</span>
-        </div>
-        <div class="admin-table-wrapper">
-          <table class="admin-table" id="adminReportsTable">
-            <thead>
-              <tr>
-                <th>Reported Item</th>
-                <th>Reason</th>
-                <th>Description / Details</th>
-                <th>Seller</th>
-                <th>Reporter</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminReportsTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Admin Users Table Section -->
-      <div id="adminSectionUsers" class="admin-section hidden">
-        <div class="admin-section-header">
-          <h4>Registered Users Management</h4>
-          <span class="subtext">View user accounts and manage administrator roles</span>
-        </div>
-        <div class="admin-table-wrapper">
-          <table class="admin-table" id="adminUsersTable">
-            <thead>
-              <tr>
-                <th>User Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Role</th>
-                <th>Total Ads</th>
-                <th>Member Since</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminUsersTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <!-- Admin panel lives at /admin (passcode-protected) -->
   </main>
-
   <!-- App Download Promo Banner -->
   <section class="app-promo-banner">
     <div class="app-promo-container">
@@ -816,7 +659,6 @@
       <div class="quick-demo-bar">
         <span>Quick Demo Login:</span>
         <div class="quick-demo-buttons">
-          <button type="button" class="demo-login-btn" id="demoAdminBtn">🛡️ Admin</button>
           <button type="button" class="demo-login-btn" id="demoSellerBtn">👤 Seller (Rohit)</button>
           <button type="button" class="demo-login-btn" id="demoBuyerBtn">🛍️ Buyer (Sneha)</button>
         </div>
@@ -825,14 +667,14 @@
       <!-- Login Form -->
       <form id="loginForm" class="auth-form">
         <h3>Welcome to OLX</h3>
-        <p class="auth-sub">Enter credentials with bcrypt secured password hashing.</p>
+        <p class="auth-sub">Use your <strong>User ID</strong> or <strong>email</strong> to login.</p>
         <div class="form-group">
-          <label for="loginEmail">Email address</label>
-          <input type="email" id="loginEmail" required placeholder="admin@olx.com or rohit@example.com">
+          <label for="loginEmail">User ID or Email</label>
+          <input type="text" id="loginEmail" required placeholder="e.g. test101 or rohit@example.com" autocomplete="username">
         </div>
         <div class="form-group">
           <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" required placeholder="Enter password (e.g. admin123)">
+          <input type="password" id="loginPassword" required placeholder="Enter your password" autocomplete="current-password">
         </div>
         <div id="loginError" class="form-error hidden"></div>
         <button type="submit" class="auth-submit-btn">Login</button>
@@ -843,29 +685,30 @@
         <h3>Create an Account</h3>
         <p class="auth-sub">Passwords are safely stored as salted bcrypt hashes.</p>
         <div class="form-group">
-          <label for="regName">Full Name</label>
-          <input type="text" id="regName" required placeholder="e.g. Amit Kumar">
+          <label for="regName">Full Name *</label>
+          <input type="text" id="regName" required placeholder="e.g. Amit Kumar" autocomplete="name">
+          <small class="form-hint">Only letters and spaces, 2–50 characters.</small>
         </div>
         <div class="form-group">
-          <label for="regEmail">Email address</label>
-          <input type="email" id="regEmail" required placeholder="name@example.com">
+          <label for="regEmail">Email Address *</label>
+          <input type="email" id="regEmail" required placeholder="name@example.com" autocomplete="email">
         </div>
         <div class="form-group">
-          <label for="regPhone">Phone Number</label>
-          <input type="tel" id="regPhone" placeholder="+91 98765 43210">
+          <label for="regPhone">Phone Number (Indian Mobile) *</label>
+          <input type="tel" id="regPhone" required placeholder="e.g. +91 9876543210" autocomplete="tel">
+          <small class="form-hint">10-digit Indian mobile number starting with 6, 7, 8 or 9.</small>
         </div>
         <div class="form-group">
-          <label for="regPassword">Password (Salted Hash)</label>
-          <input type="password" id="regPassword" required placeholder="Min 6 characters">
+          <label for="regPassword">Password *</label>
+          <input type="password" id="regPassword" required placeholder="At least 6 chars with a letter & number" autocomplete="new-password">
+          <small class="form-hint">Min 6 characters, must include at least one letter and one number.</small>
         </div>
-        <div class="form-group checkbox-group">
-          <label class="checkbox-label">
-            <input type="checkbox" id="regIsAdmin">
-            <span>Register as Administrator (Access to Admin Panel)</span>
-          </label>
+        <div class="form-group">
+          <label for="regConfirmPassword">Confirm Password *</label>
+          <input type="password" id="regConfirmPassword" required placeholder="Re-enter your password" autocomplete="new-password">
         </div>
         <div id="registerError" class="form-error hidden"></div>
-        <button type="submit" class="auth-submit-btn">Register</button>
+        <button type="submit" class="auth-submit-btn">Create Account</button>
       </form>
     </div>
   </div>

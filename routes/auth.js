@@ -83,7 +83,7 @@ router.post('/register', async (req, res) => {
 // Accepts userId or email (e.g. test101 or test101@olx.com) along with password (e.g. pass101)
 router.post('/login', async (req, res) => {
   try {
-    const identifier = (req.body.email || req.body.userId || req.body.username || '').trim().toLowerCase();
+    const identifier = (req.body.identifier || req.body.email || req.body.userId || req.body.username || '').trim().toLowerCase();
     const { password } = req.body;
 
     if (!identifier || !password) {
