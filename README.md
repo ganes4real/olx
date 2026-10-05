@@ -1,4 +1,4 @@
-# OLX Marketplace Clone (MERN Stack without React)
+# OLX Marketplace Clone
 
 A full-featured clone of **OLX (Online Marketplace Platform)** built using **Node.js, Express, MongoDB (Mongoose)** on the backend and clean, basic **Vanilla HTML5, CSS3, and JavaScript** on the frontend (no React, no heavy zoom or blur effects).
 
@@ -6,10 +6,7 @@ A full-featured clone of **OLX (Online Marketplace Platform)** built using **Nod
 
 ## 🌟 Key Features
 
-1. **OLX Brand Identity & Layout**:
-   - Signature OLX Teal (`#002f34`), Cyan (`#00a49f`), and Yellow (`#ffce32`) theme.
-   - Iconic multi-color bordered **`+ SELL`** pill button.
-   - Geometric OLX SVG logo and sticky top navigation bar.
+1. **OLX Brand Identity & Layout**
    - Location selector (All India, Mumbai, Delhi, Bengaluru, Pune, Chennai, etc.).
    - Search bar with instant query execution.
 
