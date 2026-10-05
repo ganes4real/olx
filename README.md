@@ -1,4 +1,4 @@
-# OLX Marketplace Clone (MERN Stack without React)
+# OLX Marketplace Clone
 
 A full-featured clone of **OLX (Online Marketplace Platform)** built using **Node.js, Express, MongoDB (Mongoose)** on the backend and clean, basic **Vanilla HTML5, CSS3, and JavaScript** on the frontend (no React, no heavy zoom or blur effects).
 
