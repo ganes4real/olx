@@ -223,8 +223,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/items - Post a new listing with image saved to uploads folder and path saved in MongoDB
-router.post('/', optionalAuth, upload.single('imageFile'), async (req, res) => {
+// POST /api/items - Post a new listing with multiple images and designated primary photo
+router.post('/', optionalAuth, upload.any(), async (req, res) => {
   try {
     const {
       title,
@@ -234,6 +234,8 @@ router.post('/', optionalAuth, upload.single('imageFile'), async (req, res) => {
       location,
       imageUrl,
       imageBase64,
+      imageBase64s,
+      primaryIndex,
       sellerName,
       sellerPhone
     } = req.body;
@@ -266,27 +268,63 @@ router.post('/', optionalAuth, upload.single('imageFile'), async (req, res) => {
       }
     }
 
-    // Save image to /uploads/ folder and retrieve file path
-    let imagePath = '';
+    // Collect all uploaded images
+    let allImages = [];
 
-    if (req.file) {
-      // Uploaded from file input via multer diskStorage
-      imagePath = `/uploads/${req.file.filename}`;
-    } else if (imageBase64 && imageBase64.startsWith('data:image')) {
-      // Provided as base64 data URL -> convert to file in uploads/
-      imagePath = saveBase64ToFile(imageBase64);
-    } else if (imageUrl && imageUrl.trim().startsWith('http')) {
-      // Remote image URL -> download and save in uploads/
+    // 1. Files uploaded via Multer
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      for (const file of req.files) {
+        allImages.push(`/uploads/${file.filename}`);
+      }
+    } else if (req.file) {
+      allImages.push(`/uploads/${req.file.filename}`);
+    }
+
+    // 2. Base64 strings array if sent
+    if (imageBase64s) {
+      let b64List = [];
+      if (Array.isArray(imageBase64s)) {
+        b64List = imageBase64s;
+      } else if (typeof imageBase64s === 'string') {
+        try {
+          const parsed = JSON.parse(imageBase64s);
+          if (Array.isArray(parsed)) b64List = parsed;
+          else b64List = [imageBase64s];
+        } catch {
+          b64List = [imageBase64s];
+        }
+      }
+      for (const b64 of b64List) {
+        if (typeof b64 === 'string' && b64.startsWith('data:image')) {
+          allImages.push(saveBase64ToFile(b64));
+        }
+      }
+    }
+
+    // 3. Single base64 string fallback
+    if (allImages.length === 0 && imageBase64 && imageBase64.startsWith('data:image')) {
+      allImages.push(saveBase64ToFile(imageBase64));
+    }
+
+    // 4. Remote image URL fallback
+    if (allImages.length === 0 && imageUrl && imageUrl.trim().startsWith('http')) {
       try {
-        imagePath = await saveUrlToFile(imageUrl.trim());
+        const fetchedPath = await saveUrlToFile(imageUrl.trim());
+        allImages.push(fetchedPath);
       } catch (e) {
         console.warn('Could not download external image, using placeholder:', e.message);
-        imagePath = createDefaultPlaceholder(title);
       }
-    } else {
-      // Default placeholder created in uploads/
-      imagePath = createDefaultPlaceholder(title);
     }
+
+    // 5. Default placeholder if no images at all
+    if (allImages.length === 0) {
+      allImages.push(createDefaultPlaceholder(title));
+    }
+
+    // Resolve primary photo index
+    const pIdx = parseInt(primaryIndex, 10);
+    const validPrimaryIdx = (!isNaN(pIdx) && pIdx >= 0 && pIdx < allImages.length) ? pIdx : 0;
+    const primaryImagePath = allImages[validPrimaryIdx];
 
     const newItem = new Item({
       title: title.trim(),
@@ -294,7 +332,8 @@ router.post('/', optionalAuth, upload.single('imageFile'), async (req, res) => {
       price: Number(price),
       category,
       location: location.trim(),
-      image: imagePath, // Stored as path in MongoDB (e.g. /uploads/item-12345.jpg)
+      image: primaryImagePath, // Primary photo for cards & listings
+      images: allImages,       // All gallery photos
       userId: userObj._id,
       sellerName: (sellerName && sellerName.trim()) || userObj.name || 'Verified Seller',
       sellerPhone: (sellerPhone && sellerPhone.trim()) || (userObj && userObj.phone) || '',

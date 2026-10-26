@@ -59,11 +59,11 @@ export const ConversationPage = () => {
           return;
         }
 
-        // Start or retrieve chat
+        // Start or retrieve chat without automatically sending a message
         const chatRes = await API.startChat(
           productId,
           currentUserId,
-          `Hi, is this "${itemRes.item.title}" still available?`,
+          '',
           token
         );
 
@@ -245,7 +245,7 @@ export const ConversationPage = () => {
             <div className="chat-partner-text">
               <h3>{otherName}</h3>
               <span className="chat-online-pill">
-                <span>●</span> Verified Seller &bull; Active Now
+                <span>●</span> Verified Seller
               </span>
             </div>
           </div>

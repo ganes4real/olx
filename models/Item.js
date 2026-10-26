@@ -38,10 +38,15 @@ const itemSchema = new mongoose.Schema({
     required: [true, 'Please provide a location'],
     trim: true
   },
-  // Stored as relative path (e.g. /uploads/item-123456.jpg) in uploads directory
+  // Primary image stored as relative path (e.g. /uploads/item-123456.jpg)
   image: {
     type: String,
     required: [true, 'Please provide an item image']
+  },
+  // Multiple images gallery
+  images: {
+    type: [String],
+    default: []
   },
   // Linked user ID
   userId: {

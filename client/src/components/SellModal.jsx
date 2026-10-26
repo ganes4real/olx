@@ -30,9 +30,8 @@ export const SellModal = ({ onItemPosted }) => {
   const [sellerName, setSellerName] = useState(user?.name || '');
   const [sellerPhone, setSellerPhone] = useState(user?.phone || '');
 
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const [imageBase64, setImageBase64] = useState('');
+  const [photos, setPhotos] = useState([]); // array of { id, file, preview }
+  const [primaryIndex, setPrimaryIndex] = useState(0);
 
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -79,29 +78,51 @@ export const SellModal = ({ onItemPosted }) => {
     setSellModalOpen(false);
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleFilesChange = (e) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      setError('Please select an image file (JPEG, PNG, WebP).');
-      return;
+    const validFiles = selectedFiles.filter((f) => f.type.startsWith('image/'));
+    if (validFiles.length < selectedFiles.length) {
+      setError('Some files were ignored because they were not valid image formats.');
     }
 
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImagePreview(reader.result);
-      setImageBase64(reader.result);
-    };
-    reader.readAsDataURL(file);
+    const newPhotos = [];
+    let loadedCount = 0;
+
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        newPhotos.push({
+          id: Math.random().toString(36).substr(2, 9),
+          file,
+          preview: reader.result
+        });
+        loadedCount++;
+        if (loadedCount === validFiles.length) {
+          setPhotos((prev) => [...prev, ...newPhotos]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview('');
-    setImageBase64('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const handleRemovePhoto = (indexToRemove) => {
+    setPhotos((prev) => {
+      const updated = prev.filter((_, idx) => idx !== indexToRemove);
+      if (primaryIndex === indexToRemove) {
+        setPrimaryIndex(0);
+      } else if (primaryIndex > indexToRemove) {
+        setPrimaryIndex((prevIdx) => Math.max(0, prevIdx - 1));
+      }
+      return updated;
+    });
+  };
+
+  const handleSetPrimary = (index) => {
+    setPrimaryIndex(index);
   };
 
   const handleSubmit = async (e) => {
@@ -130,11 +151,12 @@ export const SellModal = ({ onItemPosted }) => {
       formData.append('sellerName', sellerName.trim());
       formData.append('sellerPhone', sellerPhone.trim());
       formData.append('userId', user?.id || user?._id || '');
+      formData.append('primaryIndex', primaryIndex);
 
-      if (imageFile) {
-        formData.append('imageFile', imageFile);
-      } else if (imageBase64) {
-        formData.append('imageBase64', imageBase64);
+      if (photos.length > 0) {
+        photos.forEach((p) => {
+          formData.append('imageFiles', p.file);
+        });
       }
 
       const res = await API.createItem(formData, token);
@@ -142,6 +164,14 @@ export const SellModal = ({ onItemPosted }) => {
 
       if (res.success && res.item) {
         setSellModalOpen(false);
+        // Reset modal fields
+        setPhotos([]);
+        setPrimaryIndex(0);
+        setTitle('');
+        setDescription('');
+        setPrice('');
+        setCategory('');
+        setLocationInput('');
         if (onItemPosted) onItemPosted(res.item);
         navigate(`/products/${res.item._id}`);
       } else {
@@ -258,40 +288,88 @@ export const SellModal = ({ onItemPosted }) => {
               )}
             </div>
 
-            {/* Image Upload Dropzone */}
+            {/* Multiple Photos Upload Section */}
             <div className="form-field">
-              <label>Listing Photo</label>
-              {!imagePreview ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <label style={{ margin: 0 }}>Listing Photos ({photos.length})</label>
+                {photos.length > 0 && (
+                  <span style={{ fontSize: '0.8rem', color: 'var(--accent-mint)', fontWeight: 600 }}>
+                    ⭐ Primary photo is the ad cover
+                  </span>
+                )}
+              </div>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                multiple
+                style={{ display: 'none' }}
+                onChange={handleFilesChange}
+              />
+
+              {photos.length === 0 ? (
                 <div
                   className="image-dropzone"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleFileChange}
-                  />
                   <div className="dropzone-inner">
                     <span className="icon">📷</span>
-                    <p style={{ fontWeight: 600 }}>Click or drop photo here</p>
+                    <p style={{ fontWeight: 600 }}>Click to upload photos (Multiple allowed)</p>
                     <span style={{ fontSize: '0.8rem', color: 'var(--text-light)' }}>
-                      Supports PNG, JPG, WebP
+                      Select one or multiple photos (PNG, JPG, WebP)
                     </span>
                   </div>
                 </div>
               ) : (
-                <div className="image-preview-box">
-                  <img src={imagePreview} alt="Ad Preview" />
-                  <button
-                    type="button"
-                    className="remove-preview-btn"
-                    onClick={handleRemoveImage}
-                    title="Remove Image"
-                  >
-                    &times;
-                  </button>
+                <div className="photos-upload-gallery">
+                  <div className="photos-grid">
+                    {photos.map((p, idx) => {
+                      const isPrimary = idx === primaryIndex;
+                      return (
+                        <div
+                          key={p.id || idx}
+                          className={`photo-thumb-card ${isPrimary ? 'is-primary' : ''}`}
+                        >
+                          <img src={p.preview} alt={`Photo ${idx + 1}`} />
+
+                          {isPrimary ? (
+                            <span className="primary-badge">⭐ Primary</span>
+                          ) : (
+                            <button
+                              type="button"
+                              className="make-primary-btn"
+                              onClick={() => handleSetPrimary(idx)}
+                              title="Set as primary cover photo"
+                            >
+                              Make Primary
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            className="remove-photo-btn"
+                            onClick={() => handleRemovePhoto(idx)}
+                            title="Remove Photo"
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      );
+                    })}
+
+                    <div
+                      className="photo-add-more-box"
+                      onClick={() => fileInputRef.current?.click()}
+                      title="Add more photos"
+                    >
+                      <span>+</span>
+                      <small>Add Photo</small>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Tip: The photo marked with <strong>⭐ Primary</strong> appears first in search results and feeds.
+                  </div>
                 </div>
               )}
             </div>

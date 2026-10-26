@@ -106,7 +106,7 @@ export const AuthModal = () => {
                 <label>User ID or Email</label>
                 <input
                   type="text"
-                  placeholder="e.g. test101 or someone@example.com"
+                  placeholder="someone@example.com"
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   required

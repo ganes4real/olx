@@ -17,6 +17,7 @@ export const ProductPage = () => {
   const [reportReason, setReportReason] = useState('');
   const [reportDetails, setReportDetails] = useState('');
   const [reportSuccess, setReportSuccess] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const favorited = isFavorited(productId);
 
@@ -28,6 +29,7 @@ export const ProductPage = () => {
         const res = await API.getItemById(productId);
         if (res.success && res.item) {
           setItem(res.item);
+          setSelectedImageIndex(0);
         } else {
           setError(res.message || 'Listing not found.');
         }
@@ -180,23 +182,79 @@ export const ProductPage = () => {
       <div className="product-page-layout">
         {/* Left Column: Image & Details */}
         <div className="product-left-col">
-          <div className="product-image-card">
-            <div className="product-main-img-wrap">
-              <img
-                src={item.image || '/uploads/item-default.svg'}
-                alt={item.title}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23002f34"/><text x="50%" y="50%" fill="%23ffce32" font-family="sans-serif" font-size="28" font-weight="bold" text-anchor="middle">OLX Marketplace</text></svg>';
-                }}
-              />
-            </div>
-            {item.status && item.status !== 'listed' && (
-              <span className={`status-badge ${item.status}`} style={{ top: '20px', left: '20px', fontSize: '0.9rem' }}>
-                {item.status.toUpperCase()}
-              </span>
-            )}
-          </div>
+          {(() => {
+            const galleryImages = (item.images && item.images.length > 0) ? item.images : (item.image ? [item.image] : []);
+            const currentImg = galleryImages[selectedImageIndex] || item.image || '/uploads/item-default.svg';
+
+            return (
+              <div className="product-image-card">
+                <div className="product-main-img-wrap" style={{ position: 'relative' }}>
+                  <img
+                    src={currentImg}
+                    alt={item.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="600" height="400" fill="%23002f34"/><text x="50%" y="50%" fill="%23ffce32" font-family="sans-serif" font-size="28" font-weight="bold" text-anchor="middle">OLX Marketplace</text></svg>';
+                    }}
+                  />
+
+                  {galleryImages.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="gallery-nav-btn prev"
+                        onClick={() =>
+                          setSelectedImageIndex((prev) =>
+                            prev > 0 ? prev - 1 : galleryImages.length - 1
+                          )
+                        }
+                        title="Previous photo"
+                      >
+                        &#10094;
+                      </button>
+                      <button
+                        type="button"
+                        className="gallery-nav-btn next"
+                        onClick={() =>
+                          setSelectedImageIndex((prev) =>
+                            prev < galleryImages.length - 1 ? prev + 1 : 0
+                          )
+                        }
+                        title="Next photo"
+                      >
+                        &#10095;
+                      </button>
+                      <span className="gallery-counter-badge">
+                        📷 {selectedImageIndex + 1} / {galleryImages.length}
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                {/* Thumbnail strip if multiple photos exist */}
+                {galleryImages.length > 1 && (
+                  <div className="gallery-thumbnails-strip">
+                    {galleryImages.map((thumbUrl, idx) => (
+                      <div
+                        key={idx}
+                        className={`gallery-thumb-item ${idx === selectedImageIndex ? 'active' : ''}`}
+                        onClick={() => setSelectedImageIndex(idx)}
+                      >
+                        <img src={thumbUrl} alt={`Thumbnail ${idx + 1}`} />
+                        {idx === 0 && <span className="thumb-primary-label">Primary</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {item.status && item.status !== 'listed' && (
+                  <span className={`status-badge ${item.status}`} style={{ top: '20px', left: '20px', fontSize: '0.9rem' }}>
+                    {item.status.toUpperCase()}
+                  </span>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="product-info-card">
             <h3>Overview & Specifications</h3>

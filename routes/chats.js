@@ -42,22 +42,24 @@ router.post('/start', optionalAuth, async (req, res) => {
       chat = new Chat({
         participants: [buyerId, sellerId],
         itemId: item._id,
-        lastMessage: initialMessage || 'Interested in your item',
+        lastMessage: (initialMessage && initialMessage.trim()) || '',
         lastMessageSender: buyerId,
         lastMessageAt: new Date()
       });
       await chat.save();
 
-      // Create initial message
-      const msg = new Message({
-        chatId: chat._id,
-        senderId: buyerId,
-        senderName: buyerUser ? buyerUser.name : 'Buyer',
-        text: initialMessage || `Hi, is this "${item.title}" still available?`
-      });
-      await msg.save();
-      chat.lastMessage = msg.text;
-      await chat.save();
+      // Only create initial message if explicitly provided by user
+      if (initialMessage && initialMessage.trim() !== '') {
+        const msg = new Message({
+          chatId: chat._id,
+          senderId: buyerId,
+          senderName: buyerUser ? buyerUser.name : 'Buyer',
+          text: initialMessage.trim()
+        });
+        await msg.save();
+        chat.lastMessage = msg.text;
+        await chat.save();
+      }
     } else if (initialMessage && initialMessage.trim() !== '') {
       const msg = new Message({
         chatId: chat._id,
