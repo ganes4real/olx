@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – OLX Clone</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+  <!-- PASSCODE GATE -->
+  <div id="passcodeGate">
+    <div class="passcode-card">
+      <span class="admin-shield-icon">🛡️</span>
+      <h1>Admin Access</h1>
+      <p>This area is restricted. Enter the admin passcode to continue.</p>
+      <form id="passcodeForm" autocomplete="off">
+        <div class="passcode-input-wrap">
+          <input type="password" id="passcodeInput" placeholder="Enter admin passcode" autofocus spellcheck="false" autocomplete="new-password">
+          <button type="button" class="toggle-pass-btn" id="togglePassBtn">👁️</button>
+        </div>
+        <div id="passcodeError"></div>
+        <button type="submit" class="passcode-submit-btn">🔐 Access Admin Panel</button>
+      </form>
+      <a href="/" class="back-link">← Back to Marketplace</a>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminDashboard">
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <span class="admin-logo-text">🛡️ OLX Admin</span>
+        <span class="admin-badge-chip">PANEL</span>
+      </div>
+      <div class="topbar-stats">
+        <div class="topbar-stat">Items: <span id="tbTotalItems">—</span></div>
+        <div class="topbar-stat">Users: <span id="tbTotalUsers">—</span></div>
+        <div class="topbar-stat">Pending Reports: <span id="tbPendingReports">—</span></div>
+      </div>
+      <div class="admin-topbar-right">
+        <button class="admin-refresh-btn" id="refreshAllBtn">🔄 Refresh</button>
+        <a href="/" class="admin-exit-btn">✕ Exit to Site</a>
+      </div>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon blue">📦</div>
+          <div class="metric-info"><span class="metric-label">Total Listings</span><h3 id="statTotalItems">0</h3></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon green">✅</div>
+          <div class="metric-info"><span class="metric-label">Active Listed</span><h3 id="statListedItems">0</h3></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon purple">💰</div>
+          <div class="metric-info"><span class="metric-label">Marked Sold</span><h3 id="statSoldItems">0</h3></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon red">⚠️</div>
+          <div class="metric-info"><span class="metric-label">Scam Reports</span><h3 id="statPendingReports">0</h3></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon orange">👥</div>
+          <div class="metric-info"><span class="metric-label">Registered Users</span><h3 id="statTotalUsers">0</h3></div>
+        </div>
+      </div>
+
+      <div class="admin-subtabs">
+        <button class="admin-subtab-btn active" id="adminTabItems">📦 Manage Items</button>
+        <button class="admin-subtab-btn" id="adminTabReports">⚠️ Scam Reports (<span id="adminReportsBadge">0</span>)</button>
+        <button class="admin-subtab-btn" id="adminTabUsers">👥 User Accounts</button>
+      </div>
+
+      <!-- Items Section -->
+      <div id="adminSectionItems" class="admin-section">
+        <div class="admin-section-header">
+          <h4>Marketplace Inventory Management</h4>
+          <div class="admin-table-filters">
+            <input type="text" id="adminItemSearch" placeholder="Search title, seller, city…">
+            <select id="adminStatusFilter">
+              <option value="all">All Statuses</option>
+              <option value="listed">Listed (Active)</option>
+              <option value="sold">Sold</option>
+              <option value="reserved">Reserved</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead><tr><th>Item Preview</th><th>Category</th><th>Price</th><th>Location</th><th>Seller</th><th>Status</th><th>Reports</th><th>Actions</th></tr></thead>
+            <tbody id="adminItemsTableBody"><tr><td colspan="8" style="text-align:center;padding:30px;color:#8b949e;">Loading inventory…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Reports Section -->
+      <div id="adminSectionReports" class="admin-section hidden">
+        <div class="admin-section-header">
+          <div>
+            <h4>Scam &amp; Fraud Reports Review</h4>
+            <span class="subtext">Review reported listings and protect the community from fraud</span>
+          </div>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead><tr><th>Reported Item</th><th>Reason</th><th>Description</th><th>Seller</th><th>Reporter</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="adminReportsTableBody"><tr><td colspan="8" style="text-align:center;padding:30px;color:#8b949e;">Loading reports…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users Section -->
+      <div id="adminSectionUsers" class="admin-section hidden">
+        <div class="admin-section-header">
+          <div>
+            <h4>Registered Users Management</h4>
+            <span class="subtext">View user accounts and manage roles</span>
+          </div>
+        </div>
+        <div class="admin-table-wrapper">
+          <table class="admin-table">
+            <thead><tr><th>User Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Total Ads</th><th>Member Since</th><th>Actions</th></tr></thead>
+            <tbody id="adminUsersTableBody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#8b949e;">Loading users…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="adminToast" class="hidden"></div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
