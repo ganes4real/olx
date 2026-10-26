@@ -42,7 +42,7 @@ export const InboxPage = () => {
         <div className="empty-state">
           <div className="icon">💬</div>
           <h3>Login Required</h3>
-          <p>Please log in with JWT credentials to view your active chats and messages.</p>
+          <p>Please log in to view your active chats and messages.</p>
           <button
             className="submit-primary-btn"
             style={{ maxWidth: '200px', margin: '0 auto' }}

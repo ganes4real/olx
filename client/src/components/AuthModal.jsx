@@ -64,12 +64,6 @@ export const AuthModal = () => {
     }
   };
 
-  const fillQuickDemo = (identifier, password) => {
-    setLoginIdentifier(identifier);
-    setLoginPassword(password);
-    setError('');
-  };
-
   return (
     <div className="modal-overlay" onClick={handleClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
@@ -79,7 +73,7 @@ export const AuthModal = () => {
 
         <div className="modal-header-section">
           <h3>Welcome to OLX</h3>
-          <p>The trusted marketplace with JWT secure authentication</p>
+          <p>The trusted marketplace to buy and sell</p>
         </div>
 
         <div className="modal-tabs">
@@ -138,34 +132,6 @@ export const AuthModal = () => {
               >
                 {submitting ? 'Logging in...' : 'Login'}
               </button>
-
-              {/* Quick Demo Accounts */}
-              <div className="demo-accounts-box">
-                <div className="title">⚡ Quick Test Accounts (One-Click):</div>
-                <div className="demo-account-buttons">
-                  <button
-                    type="button"
-                    className="demo-btn"
-                    onClick={() => fillQuickDemo('test101', 'pass101')}
-                  >
-                    👑 Admin (test101)
-                  </button>
-                  <button
-                    type="button"
-                    className="demo-btn"
-                    onClick={() => fillQuickDemo('rohit@example.com', 'pass101')}
-                  >
-                    👤 Rohit Sharma
-                  </button>
-                  <button
-                    type="button"
-                    className="demo-btn"
-                    onClick={() => fillQuickDemo('buyer@example.com', 'pass101')}
-                  >
-                    👤 Sneha Reddy
-                  </button>
-                </div>
-              </div>
             </form>
           ) : (
             <form onSubmit={handleRegisterSubmit}>

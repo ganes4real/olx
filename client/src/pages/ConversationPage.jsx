@@ -167,14 +167,14 @@ export const ConversationPage = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  // If user is not authenticated, prompt to log in with JWT
+  // If user is not authenticated, prompt to log in
   if (!isAuthenticated) {
     return (
       <main className="main-content">
         <div className="empty-state">
           <div className="icon">🔒</div>
           <h3>Authentication Required</h3>
-          <p>Please log in with your JWT credentials to start or view conversations with sellers.</p>
+          <p>Please log in to start or view conversations with sellers.</p>
           <button
             className="submit-primary-btn"
             style={{ maxWidth: '200px', margin: '0 auto' }}

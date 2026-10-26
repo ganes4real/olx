@@ -34,7 +34,7 @@ export const Footer = () => {
         <div className="footer-col">
           <h4>TRUST & SAFETY</h4>
           <ul>
-            <li><a href="#">JWT Security Verified</a></li>
+            <li><a href="#">Security Verified</a></li>
             <li><a href="#">Safety Guidelines</a></li>
             <li><a href="#">Legal & Privacy Policy</a></li>
             <li><a href="#">Community Guidelines</a></li>
@@ -44,7 +44,7 @@ export const Footer = () => {
       <div className="footer-bottom">
         <div className="footer-bottom-container">
           <span>Help &bull; Sitemap &bull; Terms of Service</span>
-          <span>All rights reserved &copy; 2006&ndash;2026 OLX Marketplace (React &bull; JWT Auth)</span>
+          <span>All rights reserved &copy; 2006&ndash;2026 OLX Marketplace</span>
         </div>
       </div>
     </footer>
